@@ -15,14 +15,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardFooter,
-} from "@/components/ui/card";
 import { MapPin, Send, CheckCircle2 } from "lucide-react";
 
 const INDIAN_STATES = [
@@ -120,63 +112,82 @@ export function ReportForm({
 
   if (submitted) {
     return (
-      <Card className="ring-emerald-500/20">
-        <CardContent className="flex flex-col items-center justify-center py-12 gap-3">
-          <div className="flex size-12 items-center justify-center rounded-full bg-emerald-500/10">
-            <CheckCircle2 className="size-6 text-emerald-600" />
-          </div>
-          <h3 className="text-lg font-semibold">Report Submitted</h3>
-          <p className="text-sm text-muted-foreground text-center max-w-xs">
+      <div className="border border-foreground/20 flex flex-col items-center justify-center py-12 gap-4">
+        <div className="size-12 border border-foreground/20 flex items-center justify-center">
+          <CheckCircle2 className="size-5 text-foreground" />
+        </div>
+        <div className="text-center space-y-1.5">
+          <h3 className="text-sm font-bold uppercase tracking-[0.15em]">
+            Report Submitted
+          </h3>
+          <p className="text-[11px] text-muted-foreground font-light max-w-xs">
             Thank you for contributing to consumer safety. Your report is now
             part of the community intelligence.
           </p>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     );
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center gap-2.5">
-          <MapPin className="size-5" />
-          <CardTitle>Submit Report</CardTitle>
+    <div className="border border-border divide-y divide-border">
+      <div className="flex items-center gap-3 p-4">
+        <MapPin className="size-3.5 text-muted-foreground" />
+        <div>
+          <h3 className="text-xs font-medium uppercase tracking-[0.15em]">
+            Submit Report
+          </h3>
+          <p className="text-[10px] text-muted-foreground mt-0.5 font-light">
+            Add location to contribute this scan to the community map
+          </p>
         </div>
-        <CardDescription>
-          Add location details to contribute this scan to the community map.
-        </CardDescription>
-      </CardHeader>
+      </div>
       <form onSubmit={handleSubmit}>
-        <CardContent className="grid gap-4">
-          <div className="grid gap-2">
-            <Label htmlFor="shopName">Shop name (optional)</Label>
+        <div className="p-4 space-y-4">
+          <div className="space-y-2">
+            <Label
+              htmlFor="shopName"
+              className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground"
+            >
+              Shop name
+              <span className="text-muted-foreground/40 ml-1">optional</span>
+            </Label>
             <Input
               id="shopName"
               placeholder="e.g. Sharma General Store"
               value={shopName}
               onChange={(e) => setShopName(e.target.value)}
+              className="h-9 text-xs bg-transparent border-border focus:border-foreground/30 placeholder:text-muted-foreground/30"
             />
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <div className="grid gap-2">
-              <Label htmlFor="city">City *</Label>
+            <div className="space-y-2">
+              <Label
+                htmlFor="city"
+                className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground"
+              >
+                City <span className="text-foreground/40">*</span>
+              </Label>
               <Input
                 id="city"
                 placeholder="e.g. Srinagar"
                 value={city}
                 onChange={(e) => setCity(e.target.value)}
                 required
+                className="h-9 text-xs bg-transparent border-border focus:border-foreground/30 placeholder:text-muted-foreground/30"
               />
             </div>
-            <div className="grid gap-2">
-              <Label>State *</Label>
+            <div className="space-y-2">
+              <Label className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
+                State <span className="text-foreground/40">*</span>
+              </Label>
               <Select value={state} onValueChange={setState} required>
-                <SelectTrigger className="w-full">
+                <SelectTrigger className="w-full h-9 text-xs bg-transparent border-border">
                   <SelectValue placeholder="Select state" />
                 </SelectTrigger>
                 <SelectContent>
                   {INDIAN_STATES.map((s) => (
-                    <SelectItem key={s} value={s}>
+                    <SelectItem key={s} value={s} className="text-xs">
                       {s}
                     </SelectItem>
                   ))}
@@ -184,29 +195,35 @@ export function ReportForm({
               </Select>
             </div>
           </div>
-          <div className="grid gap-2">
-            <Label htmlFor="notes">Additional notes (optional)</Label>
+          <div className="space-y-2">
+            <Label
+              htmlFor="notes"
+              className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground"
+            >
+              Notes
+              <span className="text-muted-foreground/40 ml-1">optional</span>
+            </Label>
             <Textarea
               id="notes"
               placeholder="Any other details about where you found this product..."
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="min-h-20"
+              className="min-h-20 text-xs bg-transparent border-border focus:border-foreground/30 placeholder:text-muted-foreground/30 resize-none"
             />
           </div>
-        </CardContent>
-        <CardFooter>
+        </div>
+        <div className="p-4 border-t border-border">
           <Button
             type="submit"
             size="lg"
-            className="w-full"
+            className="w-full text-xs uppercase tracking-[0.15em] h-10"
             disabled={!city || !state || isSubmitting}
           >
-            <Send className="size-4 mr-1.5" />
+            <Send className="size-3.5 mr-2" />
             {isSubmitting ? "Submitting..." : "Submit Report"}
           </Button>
-        </CardFooter>
+        </div>
       </form>
-    </Card>
+    </div>
   );
 }

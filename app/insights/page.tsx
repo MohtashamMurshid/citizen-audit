@@ -3,17 +3,7 @@
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Shield,
   ArrowLeft,
@@ -29,55 +19,71 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
+import { useState } from "react";
 
 const IndiaHeatmap = dynamic(
   () => import("@/components/india-heatmap").then((m) => m.IndiaHeatmap),
   {
     ssr: false,
     loading: () => (
-      <div className="h-[420px] w-full rounded-xl border bg-muted/30 flex items-center justify-center">
-        <p className="text-sm text-muted-foreground">Loading map...</p>
+      <div className="h-[420px] w-full border border-border flex items-center justify-center">
+        <div className="flex flex-col items-center gap-2">
+          <div className="size-2 bg-foreground animate-pulse" />
+          <p className="text-[10px] text-muted-foreground uppercase tracking-[0.2em]">
+            Loading map
+          </p>
+        </div>
       </div>
     ),
   }
 );
+
+type TabId = "map" | "hotspots" | "recent";
 
 export default function InsightsPage() {
   const stats = useQuery(api.reports.overallStats);
   const cityStats = useQuery(api.reports.statsByCity);
   const stateStats = useQuery(api.reports.statsByState);
   const recentReports = useQuery(api.reports.list);
+  const [activeTab, setActiveTab] = useState<TabId>("map");
 
   const isLoading = !stats || !cityStats || !stateStats || !recentReports;
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-lg">
-        <div className="mx-auto flex h-14 max-w-3xl items-center justify-between px-4">
-          <Link href="/" className="flex items-center gap-2">
-            <Shield className="size-5 text-primary" />
-            <span className="text-base font-semibold tracking-tight">
+      <header className="sticky top-0 z-50 border-b border-border/50 bg-background/90 backdrop-blur-xl">
+        <div className="mx-auto flex h-12 max-w-3xl items-center justify-between px-4 sm:px-6">
+          <Link href="/" className="flex items-center gap-2.5 group">
+            <div className="flex size-7 items-center justify-center border border-foreground/20 group-hover:border-foreground/40 transition-colors">
+              <Shield className="size-3.5 text-foreground" />
+            </div>
+            <span className="text-xs font-semibold uppercase tracking-[0.2em] text-foreground">
               CitizenAudit
             </span>
           </Link>
           <Link href="/">
-            <Button variant="ghost" size="sm">
-              <ArrowLeft className="size-4" />
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-xs uppercase tracking-wider text-muted-foreground hover:text-foreground gap-1.5 h-8 px-3"
+            >
+              <ArrowLeft className="size-3" />
               New Scan
             </Button>
           </Link>
         </div>
       </header>
 
-      <main className="mx-auto max-w-3xl px-4 py-8 space-y-8">
-        <div className="space-y-2">
-          <div className="flex items-center gap-2">
-            <BarChart3 className="size-5" />
-            <h1 className="text-2xl font-bold tracking-tight">
-              Community Insights
-            </h1>
+      <main className="mx-auto max-w-3xl px-4 sm:px-6 py-8 sm:py-12 space-y-8">
+        <div className="space-y-3 animate-fade-up">
+          <div className="inline-flex items-center gap-2 border border-border/60 px-3 py-1.5 text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
+            <BarChart3 className="size-3" />
+            Community Data
           </div>
-          <p className="text-sm text-muted-foreground">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
+            Insights
+          </h1>
+          <p className="text-xs text-muted-foreground font-light">
             Aggregated verification data from citizen scans across India
           </p>
         </div>
@@ -88,7 +94,10 @@ export default function InsightsPage() {
           <EmptyState />
         ) : (
           <>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <div
+              className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-border/50 animate-fade-up"
+              style={{ animationDelay: "100ms" }}
+            >
               <StatCard
                 icon={Scan}
                 label="Total Scans"
@@ -98,57 +107,68 @@ export default function InsightsPage() {
                 icon={ShieldCheck}
                 label="Verified"
                 value={stats.verified}
-                accent="emerald"
               />
               <StatCard
                 icon={ShieldAlert}
                 label="Suspicious"
                 value={stats.suspicious}
-                accent="red"
+                alert
               />
               <StatCard
                 icon={ShieldX}
                 label="Not Found"
                 value={stats.notFound}
-                accent="amber"
               />
             </div>
 
-            <Tabs defaultValue="map">
-              <TabsList>
-                <TabsTrigger value="map">
-                  <Map className="size-3.5 mr-1" />
-                  Map
-                </TabsTrigger>
-                <TabsTrigger value="hotspots">
-                  <TrendingUp className="size-3.5 mr-1" />
-                  Hotspots
-                </TabsTrigger>
-                <TabsTrigger value="recent">
-                  <Clock className="size-3.5 mr-1" />
-                  Recent
-                </TabsTrigger>
-              </TabsList>
+            <div
+              className="space-y-4 animate-fade-up"
+              style={{ animationDelay: "200ms" }}
+            >
+              <div className="flex items-center gap-0 border-b border-border">
+                <TabButton
+                  id="map"
+                  icon={Map}
+                  label="Map"
+                  active={activeTab === "map"}
+                  onClick={setActiveTab}
+                />
+                <TabButton
+                  id="hotspots"
+                  icon={TrendingUp}
+                  label="Hotspots"
+                  active={activeTab === "hotspots"}
+                  onClick={setActiveTab}
+                />
+                <TabButton
+                  id="recent"
+                  icon={Clock}
+                  label="Recent"
+                  active={activeTab === "recent"}
+                  onClick={setActiveTab}
+                />
+              </div>
 
-              <TabsContent value="map" className="mt-4">
+              {activeTab === "map" && (
                 <IndiaHeatmap cityStats={cityStats} stateStats={stateStats} />
-              </TabsContent>
+              )}
 
-              <TabsContent value="hotspots" className="space-y-4 mt-4">
-                {cityStats.length > 0 && (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <MapPin className="size-4" />
-                        City Hotspots
-                      </CardTitle>
-                      <CardDescription>
-                        Cities ranked by number of suspicious reports
-                      </CardDescription>
-                    </CardHeader>
-                    <Separator />
-                    <CardContent className="pt-4">
-                      <div className="space-y-3">
+              {activeTab === "hotspots" && (
+                <div className="space-y-6">
+                  {cityStats.length > 0 && (
+                    <div className="border border-border divide-y divide-border">
+                      <div className="flex items-center gap-2.5 p-4">
+                        <MapPin className="size-3.5 text-muted-foreground" />
+                        <div>
+                          <h3 className="text-xs font-medium uppercase tracking-[0.15em]">
+                            City Hotspots
+                          </h3>
+                          <p className="text-[10px] text-muted-foreground mt-0.5 font-light">
+                            Ranked by suspicious report density
+                          </p>
+                        </div>
+                      </div>
+                      <div className="divide-y divide-border/50">
                         {cityStats.slice(0, 10).map((city, i) => (
                           <HotspotRow
                             key={city.city}
@@ -161,24 +181,23 @@ export default function InsightsPage() {
                           />
                         ))}
                       </div>
-                    </CardContent>
-                  </Card>
-                )}
+                    </div>
+                  )}
 
-                {stateStats.length > 0 && (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <MapPin className="size-4" />
-                        State Overview
-                      </CardTitle>
-                      <CardDescription>
-                        Report distribution across states
-                      </CardDescription>
-                    </CardHeader>
-                    <Separator />
-                    <CardContent className="pt-4">
-                      <div className="space-y-3">
+                  {stateStats.length > 0 && (
+                    <div className="border border-border divide-y divide-border">
+                      <div className="flex items-center gap-2.5 p-4">
+                        <MapPin className="size-3.5 text-muted-foreground" />
+                        <div>
+                          <h3 className="text-xs font-medium uppercase tracking-[0.15em]">
+                            State Overview
+                          </h3>
+                          <p className="text-[10px] text-muted-foreground mt-0.5 font-light">
+                            Report distribution across states
+                          </p>
+                        </div>
+                      </div>
+                      <div className="divide-y divide-border/50">
                         {stateStats.slice(0, 10).map((state, i) => (
                           <HotspotRow
                             key={state.state}
@@ -191,22 +210,24 @@ export default function InsightsPage() {
                           />
                         ))}
                       </div>
-                    </CardContent>
-                  </Card>
-                )}
-              </TabsContent>
+                    </div>
+                  )}
+                </div>
+              )}
 
-              <TabsContent value="recent" className="space-y-3 mt-4">
-                {recentReports.map((report) => (
-                  <ReportCard key={report._id} report={report} />
-                ))}
-              </TabsContent>
-            </Tabs>
+              {activeTab === "recent" && (
+                <div className="border border-border divide-y divide-border">
+                  {recentReports.map((report) => (
+                    <ReportCard key={report._id} report={report} />
+                  ))}
+                </div>
+              )}
+            </div>
           </>
         )}
 
-        <footer className="border-t pt-6 pb-4">
-          <p className="text-xs text-muted-foreground/60 text-center">
+        <footer className="border-t border-border/50 pt-6 pb-4">
+          <p className="text-[10px] text-muted-foreground/40 text-center uppercase tracking-[0.15em]">
             CitizenAudit is a prototype civic tool. Data reflects community
             submissions and AI-assisted assessments, not official BIS records.
           </p>
@@ -216,36 +237,59 @@ export default function InsightsPage() {
   );
 }
 
+function TabButton({
+  id,
+  icon: Icon,
+  label,
+  active,
+  onClick,
+}: {
+  id: TabId;
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  active: boolean;
+  onClick: (id: TabId) => void;
+}) {
+  return (
+    <button
+      onClick={() => onClick(id)}
+      className={`flex items-center gap-1.5 px-4 py-2.5 text-[10px] uppercase tracking-[0.2em] border-b-2 transition-colors ${
+        active
+          ? "border-foreground text-foreground"
+          : "border-transparent text-muted-foreground hover:text-foreground/70"
+      }`}
+    >
+      <Icon className="size-3" />
+      {label}
+    </button>
+  );
+}
+
 function StatCard({
   icon: Icon,
   label,
   value,
-  accent,
+  alert,
 }: {
   icon: React.ComponentType<{ className?: string }>;
   label: string;
   value: number;
-  accent?: "emerald" | "red" | "amber";
+  alert?: boolean;
 }) {
-  const accentClass =
-    accent === "emerald"
-      ? "text-emerald-600 dark:text-emerald-400"
-      : accent === "red"
-        ? "text-red-600 dark:text-red-400"
-        : accent === "amber"
-          ? "text-amber-600 dark:text-amber-400"
-          : "text-foreground";
-
   return (
-    <Card>
-      <CardContent className="flex flex-col items-center gap-1.5 py-4">
-        <Icon className={`size-5 ${accent ? accentClass : "text-muted-foreground"}`} />
-        <span className={`text-2xl font-bold tabular-nums ${accentClass}`}>
-          {value}
-        </span>
-        <span className="text-xs text-muted-foreground">{label}</span>
-      </CardContent>
-    </Card>
+    <div className="flex flex-col items-center gap-1.5 bg-background p-4 sm:p-5">
+      <Icon
+        className={`size-4 ${alert ? "text-destructive/70" : "text-muted-foreground/50"}`}
+      />
+      <span
+        className={`text-2xl font-bold tabular-nums tracking-tight ${alert ? "text-destructive" : ""}`}
+      >
+        {value}
+      </span>
+      <span className="text-[10px] text-muted-foreground uppercase tracking-[0.2em]">
+        {label}
+      </span>
+    </div>
   );
 }
 
@@ -268,74 +312,56 @@ function HotspotRow({
   const suspiciousWidth = total > 0 ? (suspicious / total) * 100 : 0;
 
   return (
-    <div className="space-y-1.5">
+    <div className="px-4 py-3 space-y-2">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-muted-foreground w-5 text-right tabular-nums">
-            {rank}
+        <div className="flex items-center gap-3">
+          <span className="text-[10px] text-muted-foreground/40 w-5 text-right tabular-nums font-mono">
+            {String(rank).padStart(2, "0")}
           </span>
-          <span className="text-sm font-medium">{name}</span>
+          <span className="text-xs font-medium">{name}</span>
         </div>
         <div className="flex items-center gap-2">
           {suspicious > 0 && (
-            <Badge
-              variant="outline"
-              className="border-red-500/30 bg-red-500/10 text-red-700 dark:text-red-400 text-[10px] px-1.5"
-            >
-              {suspicious} suspicious
-            </Badge>
+            <span className="text-[10px] text-destructive/70 font-mono tabular-nums">
+              {suspicious}s
+            </span>
           )}
           {verified > 0 && (
-            <Badge
-              variant="outline"
-              className="border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 text-[10px] px-1.5"
-            >
-              {verified} verified
-            </Badge>
+            <span className="text-[10px] text-foreground/50 font-mono tabular-nums">
+              {verified}v
+            </span>
           )}
-          <span className="text-xs text-muted-foreground tabular-nums w-8 text-right">
+          <span className="text-[10px] text-muted-foreground font-mono tabular-nums w-6 text-right">
             {total}
           </span>
         </div>
       </div>
       <div
-        className="h-1.5 rounded-full bg-muted overflow-hidden"
+        className="h-px bg-muted overflow-hidden"
         style={{ width: `${barWidth}%` }}
       >
         <div className="h-full flex">
           {suspiciousWidth > 0 && (
             <div
-              className="h-full bg-red-500/60"
+              className="h-full bg-destructive/50"
               style={{ width: `${suspiciousWidth}%` }}
             />
           )}
-          <div className="h-full flex-1 bg-emerald-500/40" />
+          <div className="h-full flex-1 bg-foreground/20" />
         </div>
       </div>
     </div>
   );
 }
 
-const verdictMap = {
-  verified: {
-    label: "Verified",
-    className:
-      "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400",
-  },
-  not_found: {
-    label: "Not Found",
-    className:
-      "border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-400",
-  },
-  suspicious: {
-    label: "Suspicious",
-    className: "",
-  },
-  needs_review: {
-    label: "Needs Review",
-    className:
-      "border-blue-500/30 bg-blue-500/10 text-blue-700 dark:text-blue-400",
-  },
+const verdictMap: Record<
+  string,
+  { label: string; indicator: string }
+> = {
+  verified: { label: "VERIFIED", indicator: "bg-foreground" },
+  not_found: { label: "NOT FOUND", indicator: "bg-muted-foreground" },
+  suspicious: { label: "SUSPICIOUS", indicator: "bg-destructive" },
+  needs_review: { label: "REVIEW", indicator: "bg-muted-foreground" },
 };
 
 function ReportCard({
@@ -354,46 +380,42 @@ function ReportCard({
     shopName?: string;
   };
 }) {
-  const vConfig = verdictMap[report.verdict];
+  const config = verdictMap[report.verdict];
   const timeAgo = getTimeAgo(report._creationTime);
 
   return (
-    <Card>
-      <CardContent className="flex gap-4 py-4">
-        {report.imageUrl && (
-          <img
-            src={report.imageUrl}
-            alt={report.productName}
-            className="size-16 rounded-lg object-cover bg-muted shrink-0"
-          />
-        )}
-        <div className="flex-1 min-w-0 space-y-1">
-          <div className="flex items-start justify-between gap-2">
-            <p className="text-sm font-medium truncate">{report.productName}</p>
-            <Badge
-              variant={
-                report.verdict === "suspicious" ? "destructive" : "outline"
-              }
-              className={vConfig.className}
-            >
-              {vConfig.label}
-            </Badge>
-          </div>
-          {report.isiNumber && (
-            <p className="text-xs font-mono text-muted-foreground">
-              {report.isiNumber}
-            </p>
-          )}
-          <div className="flex items-center gap-3 text-xs text-muted-foreground">
-            <span className="flex items-center gap-1">
-              <MapPin className="size-3" />
-              {report.city}, {report.state}
+    <div className="flex gap-4 p-4">
+      {report.imageUrl && (
+        <img
+          src={report.imageUrl}
+          alt={report.productName}
+          className="size-14 object-cover bg-muted shrink-0 border border-border"
+        />
+      )}
+      <div className="flex-1 min-w-0 space-y-1.5">
+        <div className="flex items-start justify-between gap-2">
+          <p className="text-xs font-medium truncate">{report.productName}</p>
+          <div className="flex items-center gap-1.5 shrink-0">
+            <span className={`size-1.5 rounded-full ${config.indicator}`} />
+            <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
+              {config.label}
             </span>
-            <span>{timeAgo}</span>
           </div>
         </div>
-      </CardContent>
-    </Card>
+        {report.isiNumber && (
+          <p className="text-[10px] font-mono text-muted-foreground tracking-wide">
+            {report.isiNumber}
+          </p>
+        )}
+        <div className="flex items-center gap-3 text-[10px] text-muted-foreground/60">
+          <span className="flex items-center gap-1">
+            <MapPin className="size-2.5" />
+            {report.city}, {report.state}
+          </span>
+          <span>{timeAgo}</span>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -411,15 +433,17 @@ function getTimeAgo(timestamp: number): string {
 function LoadingSkeleton() {
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-border/50">
         {Array.from({ length: 4 }).map((_, i) => (
-          <Skeleton key={i} className="h-24 rounded-xl" />
+          <div key={i} className="bg-background p-5">
+            <Skeleton className="h-20 w-full bg-muted" />
+          </div>
         ))}
       </div>
-      <Skeleton className="h-8 w-40 rounded-lg" />
-      <div className="space-y-3">
+      <Skeleton className="h-8 w-40 bg-muted" />
+      <div className="space-y-px">
         {Array.from({ length: 5 }).map((_, i) => (
-          <Skeleton key={i} className="h-20 rounded-xl" />
+          <Skeleton key={i} className="h-16 w-full bg-muted" />
         ))}
       </div>
     </div>
@@ -428,18 +452,22 @@ function LoadingSkeleton() {
 
 function EmptyState() {
   return (
-    <div className="flex flex-col items-center justify-center py-20 gap-4">
-      <div className="flex size-16 items-center justify-center rounded-2xl bg-muted">
-        <BarChart3 className="size-7 text-muted-foreground" />
+    <div className="flex flex-col items-center justify-center py-20 gap-5">
+      <div className="size-16 border border-border flex items-center justify-center">
+        <BarChart3 className="size-6 text-muted-foreground" />
       </div>
-      <h2 className="text-lg font-semibold">No reports yet</h2>
-      <p className="text-sm text-muted-foreground text-center max-w-sm">
-        Be the first to scan a product and contribute to consumer safety
-        intelligence across India.
-      </p>
+      <div className="text-center space-y-1.5">
+        <h2 className="text-sm font-bold uppercase tracking-[0.15em]">
+          No reports yet
+        </h2>
+        <p className="text-[11px] text-muted-foreground font-light max-w-sm">
+          Be the first to scan a product and contribute to consumer safety
+          intelligence across India.
+        </p>
+      </div>
       <Link href="/">
-        <Button>
-          <Scan className="size-4 mr-1.5" />
+        <Button className="text-xs uppercase tracking-[0.15em] h-9">
+          <Scan className="size-3.5 mr-1.5" />
           Start Scanning
         </Button>
       </Link>

@@ -8,7 +8,6 @@ import { UploadZone } from "@/components/upload-zone";
 import { ScanResult } from "@/components/scan-result";
 import { ReportForm } from "@/components/report-form";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   Shield,
   BarChart3,
@@ -17,6 +16,11 @@ import {
   MapPin,
   Users,
   AlertTriangle,
+  ArrowUpRight,
+  Eye,
+  Crosshair,
+  FileCheck,
+  Radio,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -111,135 +115,155 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-lg">
-        <div className="mx-auto flex h-14 max-w-2xl items-center justify-between px-4">
-          <Link href="/" className="flex items-center gap-2">
-            <Shield className="size-5 text-primary" />
-            <span className="text-base font-semibold tracking-tight">
+      <header className="sticky top-0 z-50 border-b border-border/50 bg-background/90 backdrop-blur-xl">
+        <div className="mx-auto flex h-12 max-w-2xl items-center justify-between px-4 sm:px-6">
+          <Link href="/" className="flex items-center gap-2.5 group">
+            <div className="flex size-7 items-center justify-center border border-foreground/20 group-hover:border-foreground/40 transition-colors">
+              <Shield className="size-3.5 text-foreground" />
+            </div>
+            <span className="text-xs font-semibold uppercase tracking-[0.2em] text-foreground">
               CitizenAudit
             </span>
           </Link>
           <Link href="/insights">
-            <Button variant="ghost" size="sm">
-              <BarChart3 className="size-4" />
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-xs uppercase tracking-wider text-muted-foreground hover:text-foreground gap-1.5 h-8 px-3"
+            >
+              <BarChart3 className="size-3" />
               Insights
+              <ArrowUpRight className="size-3 opacity-50" />
             </Button>
           </Link>
         </div>
       </header>
 
-      <main className="mx-auto max-w-2xl px-4 py-8">
+      <main className="mx-auto max-w-2xl px-4 sm:px-6 py-8 sm:py-12">
         {step === "upload" && (
-          <div className="space-y-8">
-            <div className="space-y-3">
-              <Badge variant="secondary" className="gap-1.5">
-                <Scan className="size-3" />
-                Product Verification
-              </Badge>
-              <h1 className="text-3xl font-bold tracking-tight">
-                Scan. Verify. Report.
+          <div className="space-y-10">
+            <div className="space-y-5 animate-fade-up">
+              <div className="inline-flex items-center gap-2 border border-border/60 px-3 py-1.5 text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
+                <div className="size-1.5 bg-foreground animate-pulse" />
+                Product Verification System
+              </div>
+              <h1 className="text-3xl sm:text-4xl font-bold tracking-tight leading-[1.1]">
+                Scan. Verify.
+                <br />
+                <span className="text-muted-foreground">Report.</span>
               </h1>
-              <p className="text-base text-muted-foreground leading-relaxed max-w-lg">
-                Upload a photo of any product with an ISI mark. Our AI will
-                extract the certification details and check if they look
-                legitimate.
+              <p className="text-sm text-muted-foreground leading-relaxed max-w-md font-light">
+                Upload a photo of any product with an ISI mark. Our AI extracts
+                certification details and checks legitimacy against known BIS
+                standards.
               </p>
             </div>
 
-            <UploadZone
-              onFileSelected={handleFileSelected}
-              isProcessing={false}
-            />
+            <div className="animate-fade-up" style={{ animationDelay: "100ms" }}>
+              <UploadZone
+                onFileSelected={handleFileSelected}
+                isProcessing={false}
+              />
+            </div>
 
             {error && (
-              <div className="flex items-center gap-2 rounded-lg border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive">
-                <AlertTriangle className="size-4 shrink-0" />
+              <div className="flex items-center gap-3 border border-destructive/30 bg-destructive/5 px-4 py-3 text-xs text-destructive font-medium">
+                <AlertTriangle className="size-3.5 shrink-0" />
                 {error}
               </div>
             )}
 
-            <div className="space-y-4">
-              <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
-                How it works
-              </h2>
-              <div className="grid gap-3">
+            <div
+              className="space-y-4 animate-fade-up"
+              style={{ animationDelay: "200ms" }}
+            >
+              <div className="flex items-center gap-3">
+                <div className="h-px flex-1 bg-border" />
+                <span className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground">
+                  How it works
+                </span>
+                <div className="h-px flex-1 bg-border" />
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-border/50">
                 <StepCard
-                  number="1"
-                  title="Upload a product photo"
-                  description="Take a clear photo showing the ISI/BIS mark and product label"
+                  number="01"
+                  icon={Eye}
+                  title="Upload product photo"
+                  description="Clear photo of the ISI/BIS mark and product label"
                 />
                 <StepCard
-                  number="2"
+                  number="02"
+                  icon={Crosshair}
                   title="AI scans the label"
-                  description="Our system extracts the ISI number and product details using vision AI"
+                  description="Vision AI extracts ISI number and product details"
                 />
                 <StepCard
-                  number="3"
+                  number="03"
+                  icon={FileCheck}
                   title="Verification check"
-                  description="The extracted number is checked against known BIS standards"
+                  description="Number checked against known BIS standards"
                 />
                 <StepCard
-                  number="4"
+                  number="04"
+                  icon={Radio}
                   title="Community report"
-                  description="Submit your findings to help map counterfeit product hotspots"
+                  description="Submit findings to map counterfeit hotspots"
                 />
               </div>
             </div>
 
             {stats && stats.total > 0 && (
-              <div className="grid grid-cols-3 gap-3">
-                <StatMini
-                  icon={Scan}
-                  label="Scans"
-                  value={stats.total}
-                />
-                <StatMini
-                  icon={MapPin}
-                  label="Cities"
-                  value={stats.cities}
-                />
-                <StatMini
-                  icon={Users}
-                  label="States"
-                  value={stats.states}
-                />
+              <div
+                className="animate-fade-up"
+                style={{ animationDelay: "300ms" }}
+              >
+                <div className="grid grid-cols-3 gap-px bg-border/50">
+                  <StatMini icon={Scan} label="Scans" value={stats.total} />
+                  <StatMini icon={MapPin} label="Cities" value={stats.cities} />
+                  <StatMini icon={Users} label="States" value={stats.states} />
+                </div>
               </div>
             )}
           </div>
         )}
 
         {step === "scanning" && (
-          <div className="space-y-6">
+          <div className="space-y-6 animate-fade-up">
             <div className="space-y-2">
-              <h1 className="text-2xl font-bold tracking-tight">
-                Scanning product...
-              </h1>
-              <p className="text-sm text-muted-foreground">
+              <div className="flex items-center gap-2">
+                <div className="size-2 bg-foreground animate-pulse" />
+                <h1 className="text-xl font-bold tracking-tight uppercase">
+                  Scanning product...
+                </h1>
+              </div>
+              <p className="text-xs text-muted-foreground tracking-wide">
                 Extracting label data and verifying ISI markings
               </p>
             </div>
-            <UploadZone
-              onFileSelected={() => {}}
-              isProcessing={true}
-            />
+            <UploadZone onFileSelected={() => {}} isProcessing={true} />
           </div>
         )}
 
         {step === "result" && extraction && verification && imageStorageId && (
-          <div className="space-y-6">
+          <div className="space-y-6 animate-fade-up">
             <div className="flex items-center justify-between">
-              <h1 className="text-2xl font-bold tracking-tight">
-                Scan Complete
-              </h1>
-              <Button variant="outline" size="sm" onClick={handleReset}>
+              <div className="flex items-center gap-2">
+                <div className="size-2 bg-foreground" />
+                <h1 className="text-xl font-bold tracking-tight uppercase">
+                  Scan Complete
+                </h1>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleReset}
+                className="text-xs uppercase tracking-wider h-8"
+              >
                 New Scan
               </Button>
             </div>
 
-            <ScanResult
-              extraction={extraction}
-              verification={verification}
-            />
+            <ScanResult extraction={extraction} verification={verification} />
 
             <ReportForm
               imageStorageId={imageStorageId}
@@ -251,21 +275,34 @@ export default function Home() {
         )}
 
         {step === "submitted" && (
-          <div className="flex flex-col items-center justify-center py-20 gap-4">
-            <h1 className="text-2xl font-bold">Thank you!</h1>
-            <p className="text-muted-foreground text-center max-w-sm">
-              Your report has been submitted and will help build consumer safety
-              intelligence across India.
-            </p>
+          <div className="flex flex-col items-center justify-center py-20 gap-6 animate-fade-up">
+            <div className="size-16 border border-foreground/20 flex items-center justify-center">
+              <Shield className="size-6 text-foreground" />
+            </div>
+            <div className="text-center space-y-2">
+              <h1 className="text-xl font-bold uppercase tracking-wide">
+                Report Submitted
+              </h1>
+              <p className="text-sm text-muted-foreground max-w-sm font-light">
+                Your report has been submitted and will help build consumer
+                safety intelligence across India.
+              </p>
+            </div>
             <div className="flex gap-3">
-              <Button onClick={handleReset}>
-                <Scan className="size-4 mr-1.5" />
+              <Button
+                onClick={handleReset}
+                className="text-xs uppercase tracking-wider h-9"
+              >
+                <Scan className="size-3.5 mr-1.5" />
                 Scan Another
               </Button>
               <Link href="/insights">
-                <Button variant="outline">
+                <Button
+                  variant="outline"
+                  className="text-xs uppercase tracking-wider h-9"
+                >
                   View Insights
-                  <ArrowRight className="size-4 ml-1.5" />
+                  <ArrowRight className="size-3.5 ml-1.5" />
                 </Button>
               </Link>
             </div>
@@ -273,9 +310,9 @@ export default function Home() {
         )}
       </main>
 
-      <footer className="mt-16 border-t py-8">
-        <div className="mx-auto max-w-2xl px-4 text-center">
-          <p className="text-xs text-muted-foreground/60">
+      <footer className="mt-16 border-t border-border/50 py-8">
+        <div className="mx-auto max-w-2xl px-4 sm:px-6 text-center">
+          <p className="text-[10px] text-muted-foreground/40 uppercase tracking-[0.15em]">
             CitizenAudit is a prototype civic tool. Results are AI-assisted
             assessments, not official BIS verifications.
           </p>
@@ -287,21 +324,28 @@ export default function Home() {
 
 function StepCard({
   number,
+  icon: Icon,
   title,
   description,
 }: {
   number: string;
+  icon: React.ComponentType<{ className?: string }>;
   title: string;
   description: string;
 }) {
   return (
-    <div className="flex items-start gap-3 rounded-xl border p-3.5 transition-colors hover:bg-muted/30">
-      <span className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-primary text-xs font-bold text-primary-foreground">
-        {number}
-      </span>
+    <div className="flex items-start gap-3.5 bg-background p-4 sm:p-5 group transition-colors hover:bg-accent/30">
+      <div className="flex flex-col items-center gap-1.5 shrink-0">
+        <span className="text-[10px] text-muted-foreground/50 font-mono tabular-nums">
+          {number}
+        </span>
+        <Icon className="size-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+      </div>
       <div>
-        <p className="text-sm font-medium">{title}</p>
-        <p className="text-xs text-muted-foreground mt-0.5">{description}</p>
+        <p className="text-xs font-medium uppercase tracking-wide">{title}</p>
+        <p className="text-[11px] text-muted-foreground mt-1 leading-relaxed font-light">
+          {description}
+        </p>
       </div>
     </div>
   );
@@ -317,10 +361,14 @@ function StatMini({
   value: number;
 }) {
   return (
-    <div className="flex flex-col items-center gap-1 rounded-xl border p-3">
-      <Icon className="size-4 text-muted-foreground" />
-      <span className="text-lg font-bold tabular-nums">{value}</span>
-      <span className="text-xs text-muted-foreground">{label}</span>
+    <div className="flex flex-col items-center gap-1.5 bg-background p-4">
+      <Icon className="size-3.5 text-muted-foreground/60" />
+      <span className="text-xl font-bold tabular-nums tracking-tight">
+        {value}
+      </span>
+      <span className="text-[10px] text-muted-foreground uppercase tracking-[0.2em]">
+        {label}
+      </span>
     </div>
   );
 }

@@ -4,7 +4,6 @@ import { useEffect, useRef } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
-// Approximate coordinates for major Indian cities
 const CITY_COORDS: Record<string, [number, number]> = {
   "Mumbai": [19.076, 72.8777],
   "Delhi": [28.6139, 77.209],
@@ -103,7 +102,6 @@ const CITY_COORDS: Record<string, [number, number]> = {
   "Pondicherry": [11.9416, 79.8083],
 };
 
-// State capital fallbacks
 const STATE_COORDS: Record<string, [number, number]> = {
   "Andhra Pradesh": [15.9129, 79.74],
   "Arunachal Pradesh": [28.218, 94.7278],
@@ -241,12 +239,15 @@ export function IndiaHeatmap({ cityStats, stateStats }: IndiaHeatmapProps) {
       attributionControl: true,
     });
 
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
-      attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>',
-      subdomains: "abcd",
-      maxZoom: 19,
-    }).addTo(map);
+    L.tileLayer(
+      "https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png",
+      {
+        attribution:
+          '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>',
+        subdomains: "abcd",
+        maxZoom: 19,
+      }
+    ).addTo(map);
 
     mapInstanceRef.current = map;
 
@@ -272,30 +273,34 @@ export function IndiaHeatmap({ cityStats, stateStats }: IndiaHeatmapProps) {
     for (const city of allCities) {
       const coords = CITY_COORDS[city.city];
       if (coords) {
-        const intensity = city.suspicious > 0
-          ? 0.5 + (city.suspicious / Math.max(city.total, 1)) * 0.5
-          : 0.2;
+        const intensity =
+          city.suspicious > 0
+            ? 0.5 + (city.suspicious / Math.max(city.total, 1)) * 0.5
+            : 0.2;
         heatData.push([coords[0], coords[1], intensity * city.total]);
 
         const suspiciousRatio = city.suspicious / Math.max(city.total, 1);
-        const hue = suspiciousRatio > 0.4 ? Math.max(0, 30 - suspiciousRatio * 40) : suspiciousRatio > 0.15 ? 40 : 150;
-        const color = `hsl(${hue}, 85%, 55%)`;
+        const lightness = suspiciousRatio > 0.4 ? 95 : suspiciousRatio > 0.15 ? 75 : 45;
 
         L.circleMarker(coords, {
           radius: Math.min(5 + Math.sqrt(city.total) * 2.5, 18),
-          fillColor: color,
-          color: "rgba(255,255,255,0.25)",
+          fillColor: `hsl(0, 0%, ${lightness}%)`,
+          color: "rgba(255,255,255,0.15)",
           weight: 1,
-          fillOpacity: 0.85,
+          fillOpacity: 0.8,
         })
           .bindPopup(
-            `<div style="font-family:system-ui;font-size:13px;line-height:1.6;min-width:140px">
-              <strong style="font-size:14px">${city.city}</strong><br/>
-              <span style="color:#94a3b8">Total reports:</span> <strong>${city.total}</strong><br/>
-              ${city.suspicious > 0 ? `<span style="color:#ef4444">Suspicious:</span> <strong>${city.suspicious}</strong><br/>` : ""}
-              ${city.verified > 0 ? `<span style="color:#22c55e">Verified:</span> <strong>${city.verified}</strong><br/>` : ""}
-              ${city.notFound > 0 ? `<span style="color:#f59e0b">Not found:</span> <strong>${city.notFound}</strong>` : ""}
-            </div>`
+            `<div style="font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.8;min-width:140px;color:#e5e5e5;background:#141414;border:1px solid rgba(255,255,255,0.08);padding:12px;margin:-1px">
+              <strong style="font-size:12px;text-transform:uppercase;letter-spacing:0.1em">${city.city}</strong><br/>
+              <span style="color:#666">Total:</span> <strong>${city.total}</strong><br/>
+              ${city.suspicious > 0 ? `<span style="color:#888">Suspicious:</span> <strong>${city.suspicious}</strong><br/>` : ""}
+              ${city.verified > 0 ? `<span style="color:#555">Verified:</span> <strong>${city.verified}</strong><br/>` : ""}
+              ${city.notFound > 0 ? `<span style="color:#444">Not found:</span> <strong>${city.notFound}</strong>` : ""}
+            </div>`,
+            {
+              className: "mono-popup",
+              closeButton: false,
+            }
           )
           .addTo(map);
       }
@@ -316,40 +321,89 @@ export function IndiaHeatmap({ cityStats, stateStats }: IndiaHeatmapProps) {
       // eslint-disable-next-line @typescript-eslint/no-require-imports
       const heat = require("leaflet.heat");
       void heat;
-      (L as unknown as { heatLayer: (data: [number, number, number][], opts: Record<string, unknown>) => L.Layer }).heatLayer(heatData, {
-        radius: 35,
-        blur: 25,
-        maxZoom: 10,
-        max: Math.max(...heatData.map((d) => d[2]), 1),
-        gradient: {
-          0.15: "#1e3a8a",
-          0.3: "#2563eb",
-          0.45: "#3b82f6",
-          0.6: "#f59e0b",
-          0.75: "#ef4444",
-          0.9: "#dc2626",
-          1.0: "#991b1b",
-        },
-      }).addTo(map);
+      (
+        L as unknown as {
+          heatLayer: (
+            data: [number, number, number][],
+            opts: Record<string, unknown>
+          ) => L.Layer;
+        }
+      )
+        .heatLayer(heatData, {
+          radius: 35,
+          blur: 25,
+          maxZoom: 10,
+          max: Math.max(...heatData.map((d) => d[2]), 1),
+          gradient: {
+            0.15: "#1a1a1a",
+            0.3: "#333333",
+            0.45: "#555555",
+            0.6: "#888888",
+            0.75: "#bbbbbb",
+            0.9: "#dddddd",
+            1.0: "#ffffff",
+          },
+        })
+        .addTo(map);
     }
   }, [cityStats, stateStats]);
 
   return (
-    <div className="relative overflow-hidden rounded-xl border">
+    <div className="relative overflow-hidden border border-border">
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
+        .mono-popup .leaflet-popup-content-wrapper {
+          background: transparent !important;
+          border-radius: 0 !important;
+          box-shadow: none !important;
+          padding: 0 !important;
+        }
+        .mono-popup .leaflet-popup-content {
+          margin: 0 !important;
+        }
+        .mono-popup .leaflet-popup-tip {
+          background: #141414 !important;
+          border: 1px solid rgba(255,255,255,0.08) !important;
+          box-shadow: none !important;
+        }
+        .leaflet-control-zoom a {
+          background: #141414 !important;
+          color: #888 !important;
+          border: 1px solid rgba(255,255,255,0.08) !important;
+          border-radius: 0 !important;
+          font-family: 'JetBrains Mono', monospace !important;
+        }
+        .leaflet-control-zoom a:hover {
+          background: #1a1a1a !important;
+          color: #fff !important;
+        }
+        .leaflet-control-attribution {
+          background: rgba(20,20,20,0.9) !important;
+          color: #444 !important;
+          font-family: 'JetBrains Mono', monospace !important;
+          font-size: 9px !important;
+        }
+        .leaflet-control-attribution a {
+          color: #555 !important;
+        }
+      `,
+        }}
+      />
       <div ref={mapRef} className="h-[420px] w-full" />
-      <div className="absolute bottom-3 left-3 z-[1000] rounded-lg bg-background/90 backdrop-blur-sm px-3 py-2 text-[11px] text-muted-foreground ring-1 ring-border">
-        <div className="flex items-center gap-3">
+      <div className="absolute bottom-3 left-3 z-[1000] border border-border bg-background/95 backdrop-blur-sm px-3 py-2">
+        <div className="flex items-center gap-4 text-[10px] text-muted-foreground uppercase tracking-[0.15em]">
           <span className="flex items-center gap-1.5">
-            <span className="inline-block size-2.5 rounded-full bg-red-500" />
-            Suspicious
+            <span className="inline-block size-2 bg-foreground" />
+            High risk
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="inline-block size-2.5 rounded-full bg-amber-500" />
-            Not found
+            <span className="inline-block size-2 bg-muted-foreground" />
+            Moderate
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="inline-block size-2.5 rounded-full bg-emerald-500" />
-            Verified
+            <span className="inline-block size-2 bg-muted-foreground/40" />
+            Low
           </span>
         </div>
       </div>
