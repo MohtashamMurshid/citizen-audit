@@ -114,8 +114,12 @@ export default function InsightsPage() {
               />
             </div>
 
-            <Tabs defaultValue="hotspots">
+            <Tabs defaultValue="map">
               <TabsList>
+                <TabsTrigger value="map">
+                  <Map className="size-3.5 mr-1" />
+                  Map
+                </TabsTrigger>
                 <TabsTrigger value="hotspots">
                   <TrendingUp className="size-3.5 mr-1" />
                   Hotspots
@@ -125,6 +129,10 @@ export default function InsightsPage() {
                   Recent
                 </TabsTrigger>
               </TabsList>
+
+              <TabsContent value="map" className="mt-4">
+                <IndiaHeatmap cityStats={cityStats} stateStats={stateStats} />
+              </TabsContent>
 
               <TabsContent value="hotspots" className="space-y-4 mt-4">
                 {cityStats.length > 0 && (

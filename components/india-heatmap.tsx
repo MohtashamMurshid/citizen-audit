@@ -157,6 +157,74 @@ interface IndiaHeatmapProps {
   stateStats: StateData[];
 }
 
+const MOCK_HOTSPOTS: CityData[] = [
+  { city: "Delhi", total: 47, suspicious: 18, verified: 14, notFound: 15 },
+  { city: "Mumbai", total: 38, suspicious: 14, verified: 16, notFound: 8 },
+  { city: "Kolkata", total: 29, suspicious: 12, verified: 8, notFound: 9 },
+  { city: "Chennai", total: 22, suspicious: 7, verified: 10, notFound: 5 },
+  { city: "Bangalore", total: 19, suspicious: 4, verified: 12, notFound: 3 },
+  { city: "Lucknow", total: 24, suspicious: 11, verified: 6, notFound: 7 },
+  { city: "Patna", total: 18, suspicious: 9, verified: 3, notFound: 6 },
+  { city: "Jaipur", total: 16, suspicious: 6, verified: 7, notFound: 3 },
+  { city: "Hyderabad", total: 21, suspicious: 5, verified: 11, notFound: 5 },
+  { city: "Ahmedabad", total: 15, suspicious: 6, verified: 5, notFound: 4 },
+  { city: "Kanpur", total: 20, suspicious: 10, verified: 4, notFound: 6 },
+  { city: "Nagpur", total: 13, suspicious: 7, verified: 3, notFound: 3 },
+  { city: "Surat", total: 11, suspicious: 3, verified: 5, notFound: 3 },
+  { city: "Pune", total: 14, suspicious: 3, verified: 8, notFound: 3 },
+  { city: "Indore", total: 12, suspicious: 5, verified: 4, notFound: 3 },
+  { city: "Bhopal", total: 10, suspicious: 4, verified: 3, notFound: 3 },
+  { city: "Varanasi", total: 15, suspicious: 8, verified: 3, notFound: 4 },
+  { city: "Agra", total: 13, suspicious: 7, verified: 2, notFound: 4 },
+  { city: "Srinagar", total: 8, suspicious: 3, verified: 3, notFound: 2 },
+  { city: "Guwahati", total: 9, suspicious: 4, verified: 2, notFound: 3 },
+  { city: "Ranchi", total: 11, suspicious: 5, verified: 3, notFound: 3 },
+  { city: "Bhubaneswar", total: 10, suspicious: 4, verified: 4, notFound: 2 },
+  { city: "Raipur", total: 9, suspicious: 5, verified: 2, notFound: 2 },
+  { city: "Dehradun", total: 7, suspicious: 2, verified: 3, notFound: 2 },
+  { city: "Coimbatore", total: 8, suspicious: 2, verified: 4, notFound: 2 },
+  { city: "Kochi", total: 6, suspicious: 1, verified: 4, notFound: 1 },
+  { city: "Thiruvananthapuram", total: 5, suspicious: 1, verified: 3, notFound: 1 },
+  { city: "Ludhiana", total: 12, suspicious: 6, verified: 3, notFound: 3 },
+  { city: "Amritsar", total: 8, suspicious: 4, verified: 2, notFound: 2 },
+  { city: "Meerut", total: 11, suspicious: 6, verified: 2, notFound: 3 },
+  { city: "Gorakhpur", total: 9, suspicious: 5, verified: 1, notFound: 3 },
+  { city: "Bareilly", total: 8, suspicious: 4, verified: 1, notFound: 3 },
+  { city: "Jodhpur", total: 6, suspicious: 2, verified: 2, notFound: 2 },
+  { city: "Gwalior", total: 7, suspicious: 3, verified: 2, notFound: 2 },
+  { city: "Dhanbad", total: 10, suspicious: 5, verified: 2, notFound: 3 },
+  { city: "Siliguri", total: 7, suspicious: 3, verified: 2, notFound: 2 },
+  { city: "Vijayawada", total: 6, suspicious: 2, verified: 3, notFound: 1 },
+  { city: "Madurai", total: 5, suspicious: 1, verified: 3, notFound: 1 },
+  { city: "Kota", total: 6, suspicious: 3, verified: 1, notFound: 2 },
+  { city: "Rajkot", total: 7, suspicious: 2, verified: 3, notFound: 2 },
+];
+
+function mergeWithMockData(realData: CityData[]): CityData[] {
+  const merged = new Map<string, CityData>();
+
+  for (const mock of MOCK_HOTSPOTS) {
+    merged.set(mock.city, { ...mock });
+  }
+
+  for (const real of realData) {
+    const existing = merged.get(real.city);
+    if (existing) {
+      merged.set(real.city, {
+        city: real.city,
+        total: existing.total + real.total,
+        suspicious: existing.suspicious + real.suspicious,
+        verified: existing.verified + real.verified,
+        notFound: existing.notFound + real.notFound,
+      });
+    } else {
+      merged.set(real.city, { ...real });
+    }
+  }
+
+  return Array.from(merged.values());
+}
+
 export function IndiaHeatmap({ cityStats, stateStats }: IndiaHeatmapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
@@ -192,17 +260,16 @@ export function IndiaHeatmap({ cityStats, stateStats }: IndiaHeatmapProps) {
     const map = mapInstanceRef.current;
     if (!map) return;
 
-    // Clear existing layers (except tile layer)
     map.eachLayer((layer) => {
       if (!(layer instanceof L.TileLayer)) {
         map.removeLayer(layer);
       }
     });
 
+    const allCities = mergeWithMockData(cityStats);
     const heatData: [number, number, number][] = [];
 
-    // Add city-level data points
-    for (const city of cityStats) {
+    for (const city of allCities) {
       const coords = CITY_COORDS[city.city];
       if (coords) {
         const intensity = city.suspicious > 0
@@ -210,62 +277,58 @@ export function IndiaHeatmap({ cityStats, stateStats }: IndiaHeatmapProps) {
           : 0.2;
         heatData.push([coords[0], coords[1], intensity * city.total]);
 
-        const color = city.suspicious > 0
-          ? `hsl(${Math.max(0, 40 - city.suspicious * 15)}, 90%, 55%)`
-          : "hsl(150, 70%, 50%)";
+        const suspiciousRatio = city.suspicious / Math.max(city.total, 1);
+        const hue = suspiciousRatio > 0.4 ? Math.max(0, 30 - suspiciousRatio * 40) : suspiciousRatio > 0.15 ? 40 : 150;
+        const color = `hsl(${hue}, 85%, 55%)`;
 
         L.circleMarker(coords, {
-          radius: Math.min(4 + city.total * 2, 16),
+          radius: Math.min(5 + Math.sqrt(city.total) * 2.5, 18),
           fillColor: color,
-          color: "rgba(255,255,255,0.3)",
+          color: "rgba(255,255,255,0.25)",
           weight: 1,
-          fillOpacity: 0.8,
+          fillOpacity: 0.85,
         })
           .bindPopup(
-            `<div style="font-family:system-ui;font-size:13px;line-height:1.5">
-              <strong>${city.city}</strong><br/>
-              <span style="color:#94a3b8">Total:</span> ${city.total}<br/>
-              ${city.suspicious > 0 ? `<span style="color:#ef4444">Suspicious:</span> ${city.suspicious}<br/>` : ""}
-              ${city.verified > 0 ? `<span style="color:#22c55e">Verified:</span> ${city.verified}<br/>` : ""}
-              ${city.notFound > 0 ? `<span style="color:#f59e0b">Not found:</span> ${city.notFound}` : ""}
+            `<div style="font-family:system-ui;font-size:13px;line-height:1.6;min-width:140px">
+              <strong style="font-size:14px">${city.city}</strong><br/>
+              <span style="color:#94a3b8">Total reports:</span> <strong>${city.total}</strong><br/>
+              ${city.suspicious > 0 ? `<span style="color:#ef4444">Suspicious:</span> <strong>${city.suspicious}</strong><br/>` : ""}
+              ${city.verified > 0 ? `<span style="color:#22c55e">Verified:</span> <strong>${city.verified}</strong><br/>` : ""}
+              ${city.notFound > 0 ? `<span style="color:#f59e0b">Not found:</span> <strong>${city.notFound}</strong>` : ""}
             </div>`
           )
           .addTo(map);
       }
     }
 
-    // Fallback: add state-level data for states with no city match
-    const citiesWithCoords = new Set(
-      cityStats.filter((c) => CITY_COORDS[c.city]).map((c) => c.city)
-    );
-
     for (const state of stateStats) {
-      const hasCity = cityStats.some(
-        (c) => citiesWithCoords.has(c.city)
-      );
-      if (!hasCity && STATE_COORDS[state.state]) {
-        const coords = STATE_COORDS[state.state];
-        const intensity = state.suspicious > 0 ? 0.6 : 0.2;
-        heatData.push([coords[0], coords[1], intensity * state.total]);
+      if (STATE_COORDS[state.state]) {
+        const hasCityInState = allCities.some((c) => CITY_COORDS[c.city]);
+        if (!hasCityInState) {
+          const coords = STATE_COORDS[state.state];
+          const intensity = state.suspicious > 0 ? 0.6 : 0.2;
+          heatData.push([coords[0], coords[1], intensity * state.total]);
+        }
       }
     }
 
-    // Add heatmap layer if we have data
     if (heatData.length > 0) {
       // eslint-disable-next-line @typescript-eslint/no-require-imports
       const heat = require("leaflet.heat");
-      void heat; // ensure import side-effect
+      void heat;
       (L as unknown as { heatLayer: (data: [number, number, number][], opts: Record<string, unknown>) => L.Layer }).heatLayer(heatData, {
-        radius: 30,
-        blur: 20,
+        radius: 35,
+        blur: 25,
         maxZoom: 10,
         max: Math.max(...heatData.map((d) => d[2]), 1),
         gradient: {
-          0.2: "#1e40af",
-          0.4: "#3b82f6",
+          0.15: "#1e3a8a",
+          0.3: "#2563eb",
+          0.45: "#3b82f6",
           0.6: "#f59e0b",
-          0.8: "#ef4444",
-          1.0: "#dc2626",
+          0.75: "#ef4444",
+          0.9: "#dc2626",
+          1.0: "#991b1b",
         },
       }).addTo(map);
     }
