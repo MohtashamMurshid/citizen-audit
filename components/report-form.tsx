@@ -15,7 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { MapPin, Send, CheckCircle2 } from "lucide-react";
+import { MapPin, Send, CheckCircle2, Loader2 } from "lucide-react";
 
 const INDIAN_STATES = [
   "Andhra Pradesh",
@@ -112,15 +112,25 @@ export function ReportForm({
 
   if (submitted) {
     return (
-      <div className="border border-foreground/20 flex flex-col items-center justify-center py-12 gap-4">
-        <div className="size-12 border border-foreground/20 flex items-center justify-center">
-          <CheckCircle2 className="size-5 text-foreground" />
+      <div className="rounded-lg border border-verified/20 bg-verified/5 flex flex-col items-center justify-center py-12 gap-4 animate-fade-up">
+        <div className="size-12 rounded-lg border border-verified/20 flex items-center justify-center">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="size-5 text-verified animate-check-draw"
+          >
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
         </div>
         <div className="text-center space-y-1.5">
-          <h3 className="text-sm font-bold uppercase tracking-[0.15em]">
+          <h3 className="text-sm font-bold tracking-wide">
             Report Submitted
           </h3>
-          <p className="text-[11px] text-muted-foreground font-light max-w-xs">
+          <p className="text-[12px] text-muted-foreground max-w-xs">
             Thank you for contributing to consumer safety. Your report is now
             part of the community intelligence.
           </p>
@@ -130,14 +140,14 @@ export function ReportForm({
   }
 
   return (
-    <div className="border border-border divide-y divide-border">
+    <div className="rounded-lg border border-border divide-y divide-border">
       <div className="flex items-center gap-3 p-4">
         <MapPin className="size-3.5 text-muted-foreground" />
         <div>
-          <h3 className="text-xs font-medium uppercase tracking-[0.15em]">
+          <h3 className="text-xs font-medium tracking-wide">
             Submit Report
           </h3>
-          <p className="text-[10px] text-muted-foreground mt-0.5 font-light">
+          <p className="text-[11px] text-muted-foreground mt-0.5">
             Add location to contribute this scan to the community map
           </p>
         </div>
@@ -147,7 +157,7 @@ export function ReportForm({
           <div className="space-y-2">
             <Label
               htmlFor="shopName"
-              className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground"
+              className="text-[11px] font-medium tracking-wide text-muted-foreground"
             >
               Shop name
               <span className="text-muted-foreground/40 ml-1">optional</span>
@@ -157,16 +167,16 @@ export function ReportForm({
               placeholder="e.g. Sharma General Store"
               value={shopName}
               onChange={(e) => setShopName(e.target.value)}
-              className="h-9 text-xs bg-transparent border-border focus:border-foreground/30 placeholder:text-muted-foreground/30"
+              className="h-9 text-xs bg-transparent rounded-lg border-border focus:border-accent/40 focus:ring-accent/20 placeholder:text-muted-foreground/30"
             />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
               <Label
                 htmlFor="city"
-                className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground"
+                className="text-[11px] font-medium tracking-wide text-muted-foreground"
               >
-                City <span className="text-foreground/40">*</span>
+                City <span className="text-accent/60">*</span>
               </Label>
               <Input
                 id="city"
@@ -174,15 +184,15 @@ export function ReportForm({
                 value={city}
                 onChange={(e) => setCity(e.target.value)}
                 required
-                className="h-9 text-xs bg-transparent border-border focus:border-foreground/30 placeholder:text-muted-foreground/30"
+                className="h-9 text-xs bg-transparent rounded-lg border-border focus:border-accent/40 focus:ring-accent/20 placeholder:text-muted-foreground/30"
               />
             </div>
             <div className="space-y-2">
-              <Label className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
-                State <span className="text-foreground/40">*</span>
+              <Label className="text-[11px] font-medium tracking-wide text-muted-foreground">
+                State <span className="text-accent/60">*</span>
               </Label>
               <Select value={state} onValueChange={setState} required>
-                <SelectTrigger className="w-full h-9 text-xs bg-transparent border-border">
+                <SelectTrigger className="w-full h-9 text-xs bg-transparent rounded-lg border-border">
                   <SelectValue placeholder="Select state" />
                 </SelectTrigger>
                 <SelectContent>
@@ -198,7 +208,7 @@ export function ReportForm({
           <div className="space-y-2">
             <Label
               htmlFor="notes"
-              className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground"
+              className="text-[11px] font-medium tracking-wide text-muted-foreground"
             >
               Notes
               <span className="text-muted-foreground/40 ml-1">optional</span>
@@ -208,7 +218,7 @@ export function ReportForm({
               placeholder="Any other details about where you found this product..."
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="min-h-20 text-xs bg-transparent border-border focus:border-foreground/30 placeholder:text-muted-foreground/30 resize-none"
+              className="min-h-20 text-xs bg-transparent rounded-lg border-border focus:border-accent/40 focus:ring-accent/20 placeholder:text-muted-foreground/30 resize-none"
             />
           </div>
         </div>
@@ -216,11 +226,20 @@ export function ReportForm({
           <Button
             type="submit"
             size="lg"
-            className="w-full text-xs uppercase tracking-[0.15em] h-10"
+            className="w-full text-xs font-medium tracking-wide h-10 rounded-lg"
             disabled={!city || !state || isSubmitting}
           >
-            <Send className="size-3.5 mr-2" />
-            {isSubmitting ? "Submitting..." : "Submit Report"}
+            {isSubmitting ? (
+              <>
+                <Loader2 className="size-3.5 mr-2 animate-spin" />
+                Submitting...
+              </>
+            ) : (
+              <>
+                <Send className="size-3.5 mr-2" />
+                Submit Report
+              </>
+            )}
           </Button>
         </div>
       </form>

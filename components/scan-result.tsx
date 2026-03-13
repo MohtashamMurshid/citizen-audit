@@ -38,30 +38,38 @@ const verdictConfig = {
   verified: {
     label: "VERIFIED",
     icon: ShieldCheck,
-    border: "border-foreground/20",
-    indicator: "bg-foreground",
-    text: "text-foreground",
+    border: "border-verified/30",
+    pill: "bg-verified/10 text-verified",
+    indicator: "bg-verified",
+    text: "text-verified",
+    barColor: "bg-verified/60",
   },
   not_found: {
     label: "NOT FOUND",
     icon: ShieldX,
-    border: "border-muted-foreground/30",
-    indicator: "bg-muted-foreground",
-    text: "text-muted-foreground",
+    border: "border-not-found/30",
+    pill: "bg-not-found/10 text-not-found",
+    indicator: "bg-not-found",
+    text: "text-not-found",
+    barColor: "bg-not-found/60",
   },
   suspicious: {
     label: "SUSPICIOUS",
     icon: ShieldAlert,
-    border: "border-destructive/40",
-    indicator: "bg-destructive",
-    text: "text-destructive",
+    border: "border-suspicious/30",
+    pill: "bg-suspicious/10 text-suspicious",
+    indicator: "bg-suspicious",
+    text: "text-suspicious",
+    barColor: "bg-suspicious/60",
   },
   needs_review: {
     label: "NEEDS REVIEW",
     icon: ShieldQuestion,
-    border: "border-muted-foreground/30",
+    border: "border-muted-foreground/20",
+    pill: "bg-muted text-muted-foreground",
     indicator: "bg-muted-foreground",
     text: "text-muted-foreground",
+    barColor: "bg-muted-foreground/60",
   },
 };
 
@@ -70,24 +78,24 @@ export function ScanResult({ extraction, verification }: ScanResultProps) {
   const Icon = config.icon;
 
   return (
-    <div className={`border ${config.border} divide-y divide-border`}>
+    <div className={`rounded-lg border ${config.border} divide-y divide-border`}>
       <div className="flex items-center justify-between p-4">
         <div className="flex items-center gap-3">
           <Icon className={`size-4 ${config.text}`} />
-          <span className="text-xs font-medium uppercase tracking-[0.15em]">
+          <span className="text-xs font-medium tracking-wide">
             Scan Result
           </span>
         </div>
-        <div className={`flex items-center gap-2 ${config.text}`}>
+        <div className={`flex items-center gap-2 rounded-full px-2.5 py-1 ${config.pill}`}>
           <span className={`size-1.5 rounded-full ${config.indicator}`} />
-          <span className="text-[10px] font-bold uppercase tracking-[0.2em]">
+          <span className="text-[10px] font-bold tracking-wider">
             {config.label}
           </span>
         </div>
       </div>
 
       <div className="p-4">
-        <p className="text-xs text-muted-foreground leading-relaxed font-light">
+        <p className="text-xs text-muted-foreground leading-relaxed">
           {verification.reason}
         </p>
       </div>
@@ -127,15 +135,17 @@ export function ScanResult({ extraction, verification }: ScanResultProps) {
         <ConfidenceBar
           label="Extraction"
           value={extraction.confidence}
+          barColor={config.barColor}
         />
         <ConfidenceBar
           label="Verification"
           value={verification.confidence}
+          barColor={config.barColor}
         />
       </div>
 
       <div className="px-4 py-3">
-        <p className="text-[10px] text-muted-foreground/40 uppercase tracking-[0.1em] leading-relaxed">
+        <p className="text-[11px] text-muted-foreground/40 tracking-wide leading-relaxed">
           Prototype AI assessment — not an official BIS verification
         </p>
       </div>
@@ -157,7 +167,7 @@ function InfoRow({
   return (
     <div className="flex items-center gap-3 px-4 py-3">
       <Icon className="size-3.5 text-muted-foreground/50 shrink-0" />
-      <span className="text-[10px] text-muted-foreground uppercase tracking-[0.15em] w-20 shrink-0">
+      <span className="text-[11px] text-muted-foreground font-medium tracking-wide w-20 shrink-0">
         {label}
       </span>
       <span
@@ -172,23 +182,25 @@ function InfoRow({
 function ConfidenceBar({
   label,
   value,
+  barColor,
 }: {
   label: string;
   value: number;
+  barColor: string;
 }) {
   return (
     <div className="space-y-1.5">
       <div className="flex items-center justify-between">
-        <span className="text-[10px] text-muted-foreground uppercase tracking-[0.15em]">
+        <span className="text-[11px] text-muted-foreground font-medium tracking-wide">
           {label}
         </span>
-        <span className="text-[10px] text-foreground font-mono tabular-nums">
+        <span className="text-[11px] text-foreground font-mono tabular-nums">
           {Math.round(value * 100)}%
         </span>
       </div>
-      <div className="h-px bg-muted overflow-hidden">
+      <div className="h-1 rounded-full bg-muted overflow-hidden">
         <div
-          className="h-full bg-foreground/60 transition-all duration-1000 ease-out"
+          className={`h-full rounded-full ${barColor} transition-all duration-1000 ease-out`}
           style={{ width: `${value * 100}%` }}
         />
       </div>

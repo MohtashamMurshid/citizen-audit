@@ -7,9 +7,10 @@ import { cn } from "@/lib/utils";
 interface UploadZoneProps {
   onFileSelected: (file: File) => void;
   isProcessing: boolean;
+  processingLabel?: string;
 }
 
-export function UploadZone({ onFileSelected, isProcessing }: UploadZoneProps) {
+export function UploadZone({ onFileSelected, isProcessing, processingLabel }: UploadZoneProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
 
@@ -45,34 +46,34 @@ export function UploadZone({ onFileSelected, isProcessing }: UploadZoneProps) {
   return (
     <div className="relative">
       {preview ? (
-        <div className="relative overflow-hidden border border-border">
+        <div className="relative overflow-hidden rounded-lg border border-border">
           <img
             src={preview}
             alt="Product preview"
             className={cn(
               "w-full max-h-80 object-contain bg-black/30 transition-all duration-700",
-              isProcessing && "opacity-40 scale-[1.02]"
+              isProcessing && "opacity-30 scale-[1.02]"
             )}
           />
           {isProcessing && (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-4">
               <div className="absolute inset-0 scanline" />
               <div className="relative size-14 flex items-center justify-center">
-                <div className="absolute inset-0 border border-foreground/30 animate-pulse-ring" />
-                <div className="absolute inset-2 border border-foreground/50 animate-spin" style={{ animationDuration: "3s" }} />
-                <Crosshair className="size-5 text-foreground" />
+                <div className="absolute inset-0 rounded-full border border-accent/30 animate-pulse-ring" />
+                <div className="absolute inset-2 rounded-full border border-accent/50 animate-spin-slow" />
+                <Crosshair className="size-5 text-accent" />
               </div>
-              <div className="text-center space-y-1">
-                <p className="text-xs font-medium uppercase tracking-[0.2em]">
-                  Scanning
+              <div className="text-center space-y-1.5">
+                <p className="text-xs font-medium tracking-wide text-foreground">
+                  {processingLabel || "Scanning"}
                 </p>
                 <div className="flex items-center gap-1 justify-center">
-                  <span className="size-1 bg-foreground animate-pulse" />
-                  <span className="size-1 bg-foreground animate-pulse" style={{ animationDelay: "200ms" }} />
-                  <span className="size-1 bg-foreground animate-pulse" style={{ animationDelay: "400ms" }} />
+                  <span className="size-1 rounded-full bg-accent animate-pulse" />
+                  <span className="size-1 rounded-full bg-accent animate-pulse" style={{ animationDelay: "200ms" }} />
+                  <span className="size-1 rounded-full bg-accent animate-pulse" style={{ animationDelay: "400ms" }} />
                 </div>
               </div>
-              <div className="absolute left-0 right-0 h-px bg-gradient-to-r from-transparent via-foreground/60 to-transparent animate-scan-line" />
+              <div className="absolute left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent/60 to-transparent animate-scan-line" />
             </div>
           )}
           {!isProcessing && (
@@ -80,7 +81,7 @@ export function UploadZone({ onFileSelected, isProcessing }: UploadZoneProps) {
               onClick={() => {
                 setPreview(null);
               }}
-              className="absolute top-3 right-3 border border-border bg-background/90 px-3 py-1.5 text-[10px] font-medium uppercase tracking-wider backdrop-blur-sm transition-colors hover:bg-accent"
+              className="absolute top-3 right-3 rounded-md border border-border bg-background/90 px-3 py-1.5 text-[11px] font-medium tracking-wide backdrop-blur-sm transition-colors hover:bg-accent/10 hover:border-accent/30"
             >
               Change
             </button>
@@ -92,41 +93,41 @@ export function UploadZone({ onFileSelected, isProcessing }: UploadZoneProps) {
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           className={cn(
-            "flex cursor-pointer flex-col items-center justify-center gap-5 border p-10 sm:p-14 transition-all duration-200",
+            "flex cursor-pointer flex-col items-center justify-center gap-5 rounded-lg border p-10 sm:p-14 transition-all duration-200",
             isDragging
-              ? "border-foreground bg-foreground/[0.03]"
-              : "border-border hover:border-foreground/30 hover:bg-accent/20"
+              ? "border-accent bg-accent/5 shadow-[0_0_20px_-5px] shadow-accent/20"
+              : "border-border hover:border-accent/30 hover:bg-accent/[0.02]"
           )}
         >
           <div
             className={cn(
-              "flex size-14 items-center justify-center border transition-colors",
+              "flex size-14 items-center justify-center rounded-lg border transition-colors",
               isDragging
-                ? "border-foreground/40"
+                ? "border-accent/40 bg-accent/10"
                 : "border-border"
             )}
           >
             {isDragging ? (
-              <Upload className="size-5 text-foreground" />
+              <Upload className="size-5 text-accent" />
             ) : (
               <ImageIcon className="size-5 text-muted-foreground" />
             )}
           </div>
           <div className="text-center space-y-1.5">
-            <p className="text-xs font-medium uppercase tracking-[0.15em]">
+            <p className="text-sm font-medium tracking-wide">
               {isDragging ? "Drop image here" : "Upload product photo"}
             </p>
-            <p className="text-[11px] text-muted-foreground font-light">
+            <p className="text-[12px] text-muted-foreground">
               Clear photo of the product label with ISI markings
             </p>
           </div>
           <div className="flex gap-2">
-            <span className="inline-flex items-center gap-1.5 border border-border px-3 py-1.5 text-[10px] uppercase tracking-wider text-muted-foreground">
-              <Camera className="size-3" />
+            <span className="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-[11px] font-medium tracking-wide text-muted-foreground hover:text-foreground hover:border-foreground/20 transition-colors">
+              <Camera className="size-3.5" />
               Camera
             </span>
-            <span className="inline-flex items-center gap-1.5 border border-border px-3 py-1.5 text-[10px] uppercase tracking-wider text-muted-foreground">
-              <Upload className="size-3" />
+            <span className="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-[11px] font-medium tracking-wide text-muted-foreground hover:text-foreground hover:border-foreground/20 transition-colors">
+              <Upload className="size-3.5" />
               Browse
             </span>
           </div>

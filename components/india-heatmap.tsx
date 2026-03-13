@@ -223,6 +223,12 @@ function mergeWithMockData(realData: CityData[]): CityData[] {
   return Array.from(merged.values());
 }
 
+function getMarkerColor(suspiciousRatio: number): string {
+  if (suspiciousRatio > 0.4) return "#d4a843";
+  if (suspiciousRatio > 0.15) return "#7bb8a0";
+  return "#5a9fd4";
+}
+
 export function IndiaHeatmap({ cityStats, stateStats }: IndiaHeatmapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
@@ -280,25 +286,25 @@ export function IndiaHeatmap({ cityStats, stateStats }: IndiaHeatmapProps) {
         heatData.push([coords[0], coords[1], intensity * city.total]);
 
         const suspiciousRatio = city.suspicious / Math.max(city.total, 1);
-        const lightness = suspiciousRatio > 0.4 ? 95 : suspiciousRatio > 0.15 ? 75 : 45;
+        const markerColor = getMarkerColor(suspiciousRatio);
 
         L.circleMarker(coords, {
           radius: Math.min(5 + Math.sqrt(city.total) * 2.5, 18),
-          fillColor: `hsl(0, 0%, ${lightness}%)`,
-          color: "rgba(255,255,255,0.15)",
+          fillColor: markerColor,
+          color: "rgba(255,255,255,0.1)",
           weight: 1,
-          fillOpacity: 0.8,
+          fillOpacity: 0.75,
         })
           .bindPopup(
-            `<div style="font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.8;min-width:140px;color:#e5e5e5;background:#141414;border:1px solid rgba(255,255,255,0.08);padding:12px;margin:-1px">
-              <strong style="font-size:12px;text-transform:uppercase;letter-spacing:0.1em">${city.city}</strong><br/>
+            `<div style="font-family:'DM Sans',sans-serif;font-size:11px;line-height:1.8;min-width:140px;color:#e5e5e5;background:#141418;border:1px solid rgba(255,255,255,0.07);padding:12px;margin:-1px;border-radius:8px">
+              <strong style="font-size:12px;letter-spacing:0.02em">${city.city}</strong><br/>
               <span style="color:#666">Total:</span> <strong>${city.total}</strong><br/>
-              ${city.suspicious > 0 ? `<span style="color:#888">Suspicious:</span> <strong>${city.suspicious}</strong><br/>` : ""}
-              ${city.verified > 0 ? `<span style="color:#555">Verified:</span> <strong>${city.verified}</strong><br/>` : ""}
-              ${city.notFound > 0 ? `<span style="color:#444">Not found:</span> <strong>${city.notFound}</strong>` : ""}
+              ${city.suspicious > 0 ? `<span style="color:#d4a843">Suspicious:</span> <strong>${city.suspicious}</strong><br/>` : ""}
+              ${city.verified > 0 ? `<span style="color:#5bb98b">Verified:</span> <strong>${city.verified}</strong><br/>` : ""}
+              ${city.notFound > 0 ? `<span style="color:#666">Not found:</span> <strong>${city.notFound}</strong>` : ""}
             </div>`,
             {
-              className: "mono-popup",
+              className: "clean-popup",
               closeButton: false,
             }
           )
@@ -335,13 +341,13 @@ export function IndiaHeatmap({ cityStats, stateStats }: IndiaHeatmapProps) {
           maxZoom: 10,
           max: Math.max(...heatData.map((d) => d[2]), 1),
           gradient: {
-            0.15: "#1a1a1a",
-            0.3: "#333333",
-            0.45: "#555555",
-            0.6: "#888888",
-            0.75: "#bbbbbb",
-            0.9: "#dddddd",
-            1.0: "#ffffff",
+            0.15: "#0a0a10",
+            0.3: "#1a3a30",
+            0.45: "#2d7a5a",
+            0.6: "#5bb98b",
+            0.75: "#c4a84d",
+            0.9: "#d4884a",
+            1.0: "#d45050",
           },
         })
         .addTo(map);
@@ -349,40 +355,46 @@ export function IndiaHeatmap({ cityStats, stateStats }: IndiaHeatmapProps) {
   }, [cityStats, stateStats]);
 
   return (
-    <div className="relative overflow-hidden border border-border">
+    <div className="relative overflow-hidden rounded-lg border border-border">
       <style
         dangerouslySetInnerHTML={{
           __html: `
-        .mono-popup .leaflet-popup-content-wrapper {
+        .clean-popup .leaflet-popup-content-wrapper {
           background: transparent !important;
           border-radius: 0 !important;
           box-shadow: none !important;
           padding: 0 !important;
         }
-        .mono-popup .leaflet-popup-content {
+        .clean-popup .leaflet-popup-content {
           margin: 0 !important;
         }
-        .mono-popup .leaflet-popup-tip {
-          background: #141414 !important;
-          border: 1px solid rgba(255,255,255,0.08) !important;
+        .clean-popup .leaflet-popup-tip {
+          background: #141418 !important;
+          border: 1px solid rgba(255,255,255,0.07) !important;
           box-shadow: none !important;
         }
         .leaflet-control-zoom a {
-          background: #141414 !important;
+          background: #141418 !important;
           color: #888 !important;
-          border: 1px solid rgba(255,255,255,0.08) !important;
-          border-radius: 0 !important;
-          font-family: 'JetBrains Mono', monospace !important;
+          border: 1px solid rgba(255,255,255,0.07) !important;
+          border-radius: 6px !important;
+          font-family: 'DM Sans', sans-serif !important;
         }
         .leaflet-control-zoom a:hover {
-          background: #1a1a1a !important;
+          background: #1a1a20 !important;
           color: #fff !important;
         }
+        .leaflet-control-zoom {
+          border: none !important;
+          border-radius: 8px !important;
+          overflow: hidden;
+        }
         .leaflet-control-attribution {
-          background: rgba(20,20,20,0.9) !important;
+          background: rgba(20,20,24,0.9) !important;
           color: #444 !important;
-          font-family: 'JetBrains Mono', monospace !important;
+          font-family: 'DM Sans', sans-serif !important;
           font-size: 9px !important;
+          border-radius: 4px 0 0 0 !important;
         }
         .leaflet-control-attribution a {
           color: #555 !important;
@@ -391,18 +403,18 @@ export function IndiaHeatmap({ cityStats, stateStats }: IndiaHeatmapProps) {
         }}
       />
       <div ref={mapRef} className="h-[420px] w-full" />
-      <div className="absolute bottom-3 left-3 z-[1000] border border-border bg-background/95 backdrop-blur-sm px-3 py-2">
-        <div className="flex items-center gap-4 text-[10px] text-muted-foreground uppercase tracking-[0.15em]">
+      <div className="absolute bottom-3 left-3 z-[1000] rounded-md border border-border bg-background/95 backdrop-blur-sm px-3 py-2">
+        <div className="flex items-center gap-4 text-[11px] text-muted-foreground font-medium tracking-wide">
           <span className="flex items-center gap-1.5">
-            <span className="inline-block size-2 bg-foreground" />
+            <span className="inline-block size-2 rounded-full bg-suspicious" />
             High risk
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="inline-block size-2 bg-muted-foreground" />
+            <span className="inline-block size-2 rounded-full bg-verified" />
             Moderate
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="inline-block size-2 bg-muted-foreground/40" />
+            <span className="inline-block size-2 rounded-full bg-accent" />
             Low
           </span>
         </div>
