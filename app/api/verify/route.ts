@@ -1,35 +1,15 @@
 import { generateObject } from "ai";
 import { openai } from "@ai-sdk/openai";
 import { z } from "zod";
+import { KNOWN_ISI_MAP } from "@/lib/standards-data";
 
 const verificationSchema = z.object({
   verdict: z.enum(["verified", "not_found", "suspicious", "needs_review"]),
   reason: z.string(),
   confidence: z.number().min(0).max(1),
-  // OpenAI structured outputs require nullable fields instead of omitted ones.
   knownStandard: z.string().nullable(),
   standardTitle: z.string().nullable(),
 });
-
-const KNOWN_ISI_STANDARDS: Record<string, string> = {
-  "IS 1293": "Electric Hotplates for domestic purposes",
-  "IS 302": "Safety of household and similar electrical appliances",
-  "IS 694": "PVC insulated cables for working voltages up to and including 1100V",
-  "IS 1180": "Distribution Transformers",
-  "IS 8143": "Aluminium alloy pressure die castings",
-  "IS 15885": "Packaged Drinking Water (other than Natural Mineral Water)",
-  "IS 14543": "Packaged Drinking Water (other than Packaged Natural Mineral Water)",
-  "IS 4984": "High density polyethylene pipes for potable water supply",
-  "IS 269": "Ordinary Portland Cement, 33 Grade",
-  "IS 8112": "Portland Cement, 43 Grade",
-  "IS 12269": "Portland Cement, 53 Grade",
-  "IS 1077": "Common Burnt Clay Building Bricks",
-  "IS 3812": "Pulverised Fuel Ash",
-  "IS 383": "Coarse and Fine Aggregate",
-  "IS 516": "Methods of Tests for Strength of Concrete",
-  "IS 10500": "Drinking Water — Specification",
-  "IS 323": "Bitumen for road work",
-};
 
 export async function POST(request: Request) {
   const { isiNumber, productName, brandName, extractedText } =
@@ -48,7 +28,7 @@ export async function POST(request: Request) {
 
   const normalizedNumber = isiNumber.replace(/[^a-zA-Z0-9]/g, " ").trim().toUpperCase();
 
-  const directMatch = Object.entries(KNOWN_ISI_STANDARDS).find(([key]) =>
+  const directMatch = Object.entries(KNOWN_ISI_MAP).find(([key]) =>
     normalizedNumber.includes(key.replace("IS ", ""))
   );
 

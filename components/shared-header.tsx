@@ -2,11 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Shield, Scan, BarChart3 } from "lucide-react";
+import { Shield, Scan, BarChart3, BookOpen, Trophy, MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navLinks = [
   { href: "/scan", label: "Scan", icon: Scan },
+  { href: "/standards", label: "Standards", icon: BookOpen },
+  { href: "/chat", label: "Ask AI", icon: MessageCircle },
+  { href: "/leaderboard", label: "Leaderboard", icon: Trophy },
   { href: "/dashboard", label: "Dashboard", icon: BarChart3 },
 ] as const;
 

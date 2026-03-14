@@ -14,6 +14,9 @@ import {
   FileCheck,
   Radio,
   BarChart3,
+  BookOpen,
+  Trophy,
+  MessageCircle,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -39,6 +42,27 @@ export default function LandingPage() {
             >
               <Scan className="size-3.5" />
               Scan
+            </Link>
+            <Link
+              href="/standards"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-medium tracking-wide text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <BookOpen className="size-3.5" />
+              Standards
+            </Link>
+            <Link
+              href="/chat"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-medium tracking-wide text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <MessageCircle className="size-3.5" />
+              Ask AI
+            </Link>
+            <Link
+              href="/leaderboard"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-medium tracking-wide text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <Trophy className="size-3.5" />
+              Leaderboard
             </Link>
             <Link
               href="/dashboard"
@@ -134,11 +158,70 @@ export default function LandingPage() {
           </div>
         </section>
 
+        <section className="mx-auto max-w-3xl px-4 sm:px-6 py-12 sm:py-16">
+          <div
+            className="space-y-6 animate-fade-up"
+            style={{ animationDelay: "250ms" }}
+          >
+            <div className="flex items-center gap-3">
+              <div className="h-px flex-1 bg-border" />
+              <span className="text-[11px] font-medium tracking-wide text-muted-foreground">
+                Explore
+              </span>
+              <div className="h-px flex-1 bg-border" />
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-border/50 rounded-lg overflow-hidden">
+              <Link
+                href="/standards"
+                className="flex items-start gap-3.5 bg-background p-5 sm:p-6 group transition-colors hover:bg-accent/5"
+              >
+                <div className="flex size-9 items-center justify-center rounded-lg border border-accent/20 bg-accent/5 shrink-0 group-hover:border-accent/40 transition-colors">
+                  <BookOpen className="size-4 text-accent" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium tracking-wide group-hover:text-accent transition-colors">
+                    Standards Explorer
+                  </p>
+                  <p className="text-[12px] text-muted-foreground mt-1 leading-relaxed">
+                    Browse 50+ Indian Standards used in BIS certification.
+                    Search by category, learn what each standard covers.
+                  </p>
+                  <span className="inline-flex items-center gap-1 mt-2 text-[11px] font-medium tracking-wide text-accent/70">
+                    Browse standards
+                    <ArrowRight className="size-3" />
+                  </span>
+                </div>
+              </Link>
+              <Link
+                href="/leaderboard"
+                className="flex items-start gap-3.5 bg-background p-5 sm:p-6 group transition-colors hover:bg-accent/5"
+              >
+                <div className="flex size-9 items-center justify-center rounded-lg border border-accent/20 bg-accent/5 shrink-0 group-hover:border-accent/40 transition-colors">
+                  <Trophy className="size-4 text-accent" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium tracking-wide group-hover:text-accent transition-colors">
+                    Community Leaderboard
+                  </p>
+                  <p className="text-[12px] text-muted-foreground mt-1 leading-relaxed">
+                    City and state rankings, community milestones, and badges.
+                    See who is leading the fight against counterfeits.
+                  </p>
+                  <span className="inline-flex items-center gap-1 mt-2 text-[11px] font-medium tracking-wide text-accent/70">
+                    View rankings
+                    <ArrowRight className="size-3" />
+                  </span>
+                </div>
+              </Link>
+            </div>
+          </div>
+        </section>
+
         {stats && stats.total > 0 && (
           <section className="mx-auto max-w-3xl px-4 sm:px-6 py-12 sm:py-16">
             <div
               className="space-y-6 animate-fade-up"
-              style={{ animationDelay: "300ms" }}
+              style={{ animationDelay: "350ms" }}
             >
               <div className="flex items-center gap-3">
                 <div className="h-px flex-1 bg-border" />
